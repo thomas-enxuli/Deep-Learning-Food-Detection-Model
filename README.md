@@ -1,3 +1,3 @@
-#APS360 PROJECT
+# APS360 PROJECT
 
 Food Recognition
