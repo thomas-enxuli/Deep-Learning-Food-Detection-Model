@@ -1,0 +1,71 @@
+Hot dog
+French fries
+Waffle
+Pancake
+Burrito
+Pretzel
+Popcorn
+Cookie
+Muffin
+Cookie
+Ice cream
+Cake
+Candy
+Guacamole
+Apple
+Grape
+Common fig
+Pear
+Strawberry
+Tomato
+Lemon
+Banana
+Orange
+Peach
+Coconut
+Mango
+Pineapple
+Grapefruit
+Pomegranate
+Watermelon
+Cantaloupe
+Egg
+Pretzel
+Bagel
+Muffin
+Cookie
+Bread
+Doughnut
+Croissant
+Tart
+Mushroom
+Pasta
+Pizza
+Seafood
+Squid
+Oyster
+Lobster
+Shrimp
+Crab
+Taco
+Cooking spray
+Cucumber
+Radish
+Artichoke
+Potato
+Tomato
+Asparagus
+Pumpkin
+Zucchini
+Cabbage
+Carrot
+Salad
+Broccoli
+Bell pepper
+Winter melon
+Honeycomb
+Hamburger
+Submarine sandwich
+Cheese
+Milk
+Sushi
