@@ -45,17 +45,18 @@ def image_id_csv():
     # if class_id in the list:
     #	save the [image id, class id, class description]
 
-    image_id_col_names = ['image_id','human','class_id','confidence_level']
+    # ImageID Source   LabelName  Confidence
+    #image_id_col_names = ['image_id','human','class_id','confidence_level']
     # training
-    image_id_data_train = pd.read_csv("./ImageSrc/train/annotations-human.csv",names=image_id_col_names,dtype=object)
+    image_id_data_train = pd.read_csv("./ImageSrc/train/annotations-human.csv")
     train_img_cnt = 0
 
-    for i in range(len(image_id_data_train.image_id)):
-        if (image_id_data_train.class_id[i] in extracted_class_id):
+    for i in range(len(image_id_data_train.ImageID)):
+        if (image_id_data_train.LabelName[i] in extracted_class_id) and image_id_data_train.Confidence[i]:
             extracted_image_id_train.append([
-                image_id_data_train.image_id[i],
-                sel_class[extracted_class_id.index(image_id_data_train.class_id[i])][0],
-                sel_class[extracted_class_id.index(image_id_data_train.class_id[i])][1]
+                image_id_data_train.ImageID[i],
+                sel_class[extracted_class_id.index(image_id_data_train.LabelName[i])][0],
+                sel_class[extracted_class_id.index(image_id_data_train.LabelName[i])][1]
                 ])
             #print (food_list['food_name'][i])
             train_img_cnt += 1
@@ -71,15 +72,15 @@ def image_id_csv():
     print ('(training data) Finished exporting to image_id+class_id_train.csv')
 
     #validation
-    image_id_data_validation = pd.read_csv("./ImageSrc/validation/annotations-human.csv",names=image_id_col_names,dtype=object)
+    image_id_data_validation = pd.read_csv("./ImageSrc/validation/annotations-human.csv")
     validation_img_cnt = 0
 
-    for i in range(len(image_id_data_validation.image_id)):
-        if (image_id_data_validation.class_id[i] in extracted_class_id):
+    for i in range(len(image_id_data_validation.ImageID)):
+        if (image_id_data_validation.LabelName[i] in extracted_class_id) and image_id_data_validation.Confidence[i]:
             extracted_image_id_validation.append([
-                image_id_data_validation.image_id[i],
-                sel_class[extracted_class_id.index(image_id_data_validation.class_id[i])][0],
-                sel_class[extracted_class_id.index(image_id_data_validation.class_id[i])][1]
+                image_id_data_validation.ImageID[i],
+                sel_class[extracted_class_id.index(image_id_data_validation.LabelName[i])][0],
+                sel_class[extracted_class_id.index(image_id_data_validation.LabelName[i])][1]
                 ])
             #print (food_list['food_name'][i])
             validation_img_cnt += 1
@@ -95,15 +96,15 @@ def image_id_csv():
     print ('(validation data) Finished exporting to image_id+class_id_validation.csv')
 
     #test
-    image_id_data_test = pd.read_csv("./ImageSrc/test/annotations-human.csv",names=image_id_col_names,dtype=object)
+    image_id_data_test = pd.read_csv("./ImageSrc/test/annotations-human.csv")
     test_img_cnt = 0
 
-    for i in range(len(image_id_data_test.image_id)):
-        if (image_id_data_test.class_id[i] in extracted_class_id):
+    for i in range(len(image_id_data_test.ImageID)):
+        if (image_id_data_test.LabelName[i] in extracted_class_id) and image_id_data_test.Confidence[i]:
             extracted_image_id_test.append([
-                image_id_data_test.image_id[i],
-                sel_class[extracted_class_id.index(image_id_data_test.class_id[i])][0],
-                sel_class[extracted_class_id.index(image_id_data_test.class_id[i])][1]
+                image_id_data_test.ImageID[i],
+                sel_class[extracted_class_id.index(image_id_data_test.LabelName[i])][0],
+                sel_class[extracted_class_id.index(image_id_data_test.LabelName[i])][1]
                 ])
             #print (food_list['food_name'][i])
             test_img_cnt += 1
@@ -160,7 +161,7 @@ def image_url():
         image_url_data = pd.read_csv('./ImageSrc/train/images.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
 
         #read class id file
-        class_id_data = pd.read_csv('image_id+class_id_train.csv')
+        class_id_data = pd.read_csv('./extracted_info/image_id+class_id_train.csv')
         class_id_data_format = ['Class_id','Image_id','class_description']
 
         [train_img_cnt,extracted_image_url_train] = helper_search(image_url_data,class_id_data)
@@ -182,7 +183,7 @@ def image_url():
         image_url_data = pd.read_csv('./ImageSrc/validation/images.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
 
         #read class id file
-        class_id_data = pd.read_csv('image_id+class_id_validation.csv')
+        class_id_data = pd.read_csv('./extracted_info/image_id+class_id_validation.csv')
         class_id_data_format = ['Class_id','Image_id','class_description']
 
         [validation_img_cnt,extracted_image_url_validation] = helper_search(image_url_data,class_id_data)
@@ -205,7 +206,7 @@ def image_url():
         image_url_data = pd.read_csv('./ImageSrc/test/images.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
 
         #read class id file
-        class_id_data = pd.read_csv('image_id+class_id_test.csv')
+        class_id_data = pd.read_csv('./extracted_info/image_id+class_id_test.csv')
         class_id_data_format = ['Class_id','Image_id','class_description']
 
         [test_img_cnt,extracted_image_url_test] = helper_search(image_url_data,class_id_data)
