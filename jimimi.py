@@ -1,5 +1,8 @@
 print("hi")
 
+#this fruit image dataset is good
+#https://github.com/Horea94/Fruit-Images-Dataset
+
 #proposal link
 #https://www.overleaf.com/project/5d1521b6ea25bd04386737c3
 
