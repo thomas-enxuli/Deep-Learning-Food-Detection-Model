@@ -5,16 +5,12 @@
 
 import pandas as pd
 import os.path
+import urllib.request
 
-def image_id_csv():
+def get_class_id():
     sel_class= [] # this list will store extracted extracted [class_id,class_description]
-    extracted_class_id = [] # this list is for stroing class_id only
-    extracted_image_id_train = []
-    extracted_image_id_validation = []
-    extracted_image_id_test = []
+    extracted_class_id = [] # this list is for storing class_id only
 
-    #first import class-descriptions.csv
-    #look for classes with food and add [class id, class description] to the list
     class_description_col_names = ['class_id','class_description']
     description_data = pd.read_csv("./ImageSrc/class-descriptions.csv",names=class_description_col_names)
     #description_data
@@ -36,8 +32,20 @@ def image_id_csv():
 
             #print (food_list['food_name'][i])
             food_cnt += 1
-
     print (str(food_cnt)+' classes of foods extracted.')
+    return [food_cnt,extracted_class_id,sel_class]
+
+
+def image_id_csv():
+
+    extracted_image_id_train = []
+    extracted_image_id_validation = []
+    extracted_image_id_test = []
+
+    #first import class-descriptions.csv
+    #look for classes with food and add [class id, class description] to the list
+    [food_cnt,extracted_class_id,sel_class] = get_class_id()
+
 
 
     #second import annotations-human.csv
@@ -231,9 +239,29 @@ def sort_csv_with_class():
     image_url_data = pd.read_csv('./extracted_info/image_url_extracted_test.csv')
     export_sorted_csv_test = image_url_data.sort_values(by=['Class_id']).to_csv ('./extracted_info/image_url_extracted_test.csv', index = None, header=True)
 
+def download(train_validation_test):
+    image_url_data = pd.read_csv('./extracted_info/image_url_extracted_'+train_validation_test+'.csv')
+    for i in range(len(image_url_data.Image_url)):
+        name = "./data/"+train_validation_test+"/"+image_url_data.class_description[i]+"/"+str(i).zfill(6)
+        url = image_url_data.Image_url[i]
+        print ('Image '+str(i).zfill(6))
+
+        try:
+            print ('Downloading from '+url)
+            print ('Saving to '+name)
+            urllib.request.urlretrieve(url,name)
+            print ('Success ...\n\n')
+        except:
+            print ('Failed ...\n\n')
+    print ('Finished downloading '+train_validation_test+' images ...')
+
+##############################################################
+#main
+
 #check if the first and second step is finished
 if os.path.isfile('./extracted_info/image_id+class_id_test.csv') and os.path.isfile('./extracted_info/image_id+class_id_train.csv') and os.path.isfile('./extracted_info/image_id+class_id_validation.csv'):
     print ('First and second step finished ... ')
+    [food_cnt,extracted_class_id,sel_class] = get_class_id()
     print ('Extracting URL ...')
     image_url()
     print ('FINISHED EXTRACTING URL  ... ')
@@ -249,7 +277,28 @@ else:
     sort_csv_with_class()
     print ('SORTED')
 
+if not os.path.exists('./data/'):
+    os.mkdir('./data/')
+    print ('Made folder ./data/')
+    os.mkdir('./data/train/')
 
+    os.mkdir('./data/validation/')
+
+    os.mkdir('./data/test/')
+
+    for i in sel_class:
+        os.mkdir('./data/train/'+i[1])
+    print ('Made folder ./data/train/')
+    for i in sel_class:
+        os.mkdir('./data/validation/'+i[1])
+    print ('Made folder ./data/validation/')
+    for i in sel_class:
+        os.mkdir('./data/test/'+i[1])
+    print ('Made folder ./data/test/')
+print ('Finished making folders')
+#download('validation')
+download('test')
+download('train')
 #third import images.csv
 #go through the file
 # if image_id in the list:
