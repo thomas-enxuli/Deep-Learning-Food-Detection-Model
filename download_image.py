@@ -5,7 +5,11 @@
 
 import pandas as pd
 import os.path
+import os
 import urllib.request
+from resize import *
+
+
 
 def get_class_id():
     sel_class= [] # this list will store extracted extracted [class_id,class_description]
@@ -255,6 +259,22 @@ def download(train_validation_test):
             print ('Failed ...\n\n')
     print ('Finished downloading '+train_validation_test+' images ...')
 
+def resize_all():
+    grandmother = os.listdir('./data') # train, test, val
+    for i in grandmother:
+        parent = os.listdir('./data/'+i) # bacon, ...
+        for j in parent:
+            child = os.listdir('./data/'+i+'/'+j) # images
+            idx = 0
+            for k in child:
+
+                old_path = './data/'+i+'/'+j+'/'+k
+                print ('old file path: '+old_path)
+                new_path = './resized_data/'+i+'/'+j+'/'+str(idx).zfill(4)+'.jpg'
+                idx += 1
+                resize_im(old_path,new_path)
+    print ('Finished resizing all images ...')
+
 ##############################################################
 #main
 
@@ -277,28 +297,29 @@ else:
     sort_csv_with_class()
     print ('SORTED')
 
-if not os.path.exists('./data/'):
-    os.mkdir('./data/')
-    print ('Made folder ./data/')
-    os.mkdir('./data/train/')
+if not os.path.exists('./resized_data/'):
+    os.mkdir('./resized_data/')
+    print ('Made folder ./resized_data/')
+    os.mkdir('./resized_data/train/')
 
-    os.mkdir('./data/validation/')
+    os.mkdir('./resized_data/validation/')
 
-    os.mkdir('./data/test/')
+    os.mkdir('./resized_data/test/')
 
     for i in sel_class:
-        os.mkdir('./data/train/'+i[1])
-    print ('Made folder ./data/train/')
+        os.mkdir('./resized_data/train/'+i[1])
+    print ('Made folder ./resized_data/train/')
     for i in sel_class:
-        os.mkdir('./data/validation/'+i[1])
-    print ('Made folder ./data/validation/')
+        os.mkdir('./resized_data/validation/'+i[1])
+    print ('Made folder ./resized_data/validation/')
     for i in sel_class:
-        os.mkdir('./data/test/'+i[1])
-    print ('Made folder ./data/test/')
+        os.mkdir('./resized_data/test/'+i[1])
+    print ('Made folder ./resized_data/test/')
 print ('Finished making folders')
+resize_all()
 #download('validation')
-download('test')
-download('train')
+#download('test')
+#download('train')
 #third import images.csv
 #go through the file
 # if image_id in the list:
