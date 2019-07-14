@@ -1,6 +1,12 @@
 .DS_Store
 ImageSrc/
 __pycache__
-extracted_info/v1
+extracted_info
 data
 resized_data
+downloads
+logs
+old_image_collected
+chromedriver
+google_crawler
+images

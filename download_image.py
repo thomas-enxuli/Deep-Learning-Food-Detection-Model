@@ -7,129 +7,83 @@ import pandas as pd
 import os.path
 import os
 import urllib.request
-from resize import *
+#from resize import *
 
 
+def helper_extract_image_id(train_validation_test,extracted_class):
+    extracted = []
+    image_id_data = pd.read_csv(train_validation_test+"-annotations-bbox.csv",usecols=['ImageID','LabelName','XMin','XMax','YMin','YMax'])
+    img_cnt = 0
 
-def get_class_id():
-    sel_class= [] # this list will store extracted extracted [class_id,class_description]
-    extracted_class_id = [] # this list is for storing class_id only
-
-    class_description_col_names = ['class_id','class_description']
-    description_data = pd.read_csv("./ImageSrc/class-descriptions.csv",names=class_description_col_names)
-    #description_data
-    #description_data['class_id']
-    #description_data
-
-    food_list = pd.read_csv("food_list.txt", delimiter = '\n',names=['food_name'])
-
-    food_cnt = 0
-
-    for i in range(len(food_list.food_name)):
-        if (food_list.food_name[i] in description_data.class_description.values):
-            idx_in_data = description_data.class_description[description_data.class_description==food_list.food_name[i]].index.tolist()[0]
-            extracted_class_id.append(description_data.class_id[idx_in_data])
-            sel_class.append([
-                description_data.class_id[idx_in_data],
-                description_data.class_description[idx_in_data]
+    for i in range(len(image_id_data.ImageID)):
+        if image_id_data.LabelName[i] in extracted_class['Class_ID'].values:
+            idx_in_data = extracted_class.Class_ID[extracted_class.Class_ID==image_id_data.LabelName[i]].index.tolist()[0]
+            extracted.append([
+                image_id_data.ImageID[i],
+                extracted_class.Class_ID[idx_in_data],
+                extracted_class.Class_Description[idx_in_data],
+                image_id_data.XMin[i],
+                image_id_data.XMax[i],
+                image_id_data.YMin[i],
+                image_id_data.YMax[i]
                 ])
+            img_cnt += 1
 
-            #print (food_list['food_name'][i])
-            food_cnt += 1
-    print (str(food_cnt)+' classes of foods extracted.')
-    return [food_cnt,extracted_class_id,sel_class]
+    return [extracted,img_cnt]
 
 
 def image_id_csv():
 
-    extracted_image_id_train = []
-    extracted_image_id_validation = []
-    extracted_image_id_test = []
-
     #first import class-descriptions.csv
-    #look for classes with food and add [class id, class description] to the list
-    [food_cnt,extracted_class_id,sel_class] = get_class_id()
-
-
-
-    #second import annotations-human.csv
-    #go through the file
-    # if class_id in the list:
-    #	save the [image id, class id, class description]
-
-    # ImageID Source   LabelName  Confidence
-    #image_id_col_names = ['image_id','human','class_id','confidence_level']
+    extracted_class = pd.read_csv('class-description.csv')
     # training
-    image_id_data_train = pd.read_csv("./ImageSrc/train/annotations-human.csv")
-    train_img_cnt = 0
 
-    for i in range(len(image_id_data_train.ImageID)):
-        if (image_id_data_train.LabelName[i] in extracted_class_id) and image_id_data_train.Confidence[i]:
-            extracted_image_id_train.append([
-                image_id_data_train.ImageID[i],
-                sel_class[extracted_class_id.index(image_id_data_train.LabelName[i])][0],
-                sel_class[extracted_class_id.index(image_id_data_train.LabelName[i])][1]
-                ])
-            #print (food_list['food_name'][i])
-            train_img_cnt += 1
-
-    print (str(train_img_cnt)+' training images extracted.')
+    [extracted_image_id_train,img_cnt_train] = helper_extract_image_id('train',extracted_class)
+    print (str(img_cnt_train)+' training images extracted.')
 
     export_df_train = pd.DataFrame({
                 'Image_id':[i[0] for i in extracted_image_id_train],
                 'Class_id':[i[1] for i in extracted_image_id_train],
-                'class_description':[i[2] for i in extracted_image_id_train]
+                'class_description':[i[2] for i in extracted_image_id_train],
+                'x_min':[i[3] for i in extracted_image_id_train],
+                'x_max':[i[4] for i in extracted_image_id_train],
+                'y_min':[i[5] for i in extracted_image_id_train],
+                'y_max':[i[6] for i in extracted_image_id_train]
                 })
-    export_csv_train = export_df_train.to_csv ('./extracted_info/image_id+class_id_train.csv', index = None, header=True)
+    export_csv_train = export_df_train.to_csv ('image_id+class_id_train.csv', index = None, header=True)
     print ('(training data) Finished exporting to image_id+class_id_train.csv')
 
     #validation
-    image_id_data_validation = pd.read_csv("./ImageSrc/validation/annotations-human.csv")
-    validation_img_cnt = 0
-
-    for i in range(len(image_id_data_validation.ImageID)):
-        if (image_id_data_validation.LabelName[i] in extracted_class_id) and image_id_data_validation.Confidence[i]:
-            extracted_image_id_validation.append([
-                image_id_data_validation.ImageID[i],
-                sel_class[extracted_class_id.index(image_id_data_validation.LabelName[i])][0],
-                sel_class[extracted_class_id.index(image_id_data_validation.LabelName[i])][1]
-                ])
-            #print (food_list['food_name'][i])
-            validation_img_cnt += 1
-
-    print (str(validation_img_cnt)+' validation images extracted.')
+    [extracted_image_id_validation,img_cnt_validation] = helper_extract_image_id('validation',extracted_class)
+    print (str(img_cnt_validation)+' validation images extracted.')
 
     export_df_validation = pd.DataFrame({
                 'Image_id':[i[0] for i in extracted_image_id_validation],
                 'Class_id':[i[1] for i in extracted_image_id_validation],
-                'class_description':[i[2] for i in extracted_image_id_validation]
+                'class_description':[i[2] for i in extracted_image_id_validation],
+                'x_min':[i[3] for i in extracted_image_id_validation],
+                'x_max':[i[4] for i in extracted_image_id_validation],
+                'y_min':[i[5] for i in extracted_image_id_validation],
+                'y_max':[i[6] for i in extracted_image_id_validation]
                 })
-    export_csv_validation = export_df_validation.to_csv ('./extracted_info/image_id+class_id_validation.csv', index = None, header=True)
+    export_csv_validation = export_df_validation.to_csv ('image_id+class_id_validation.csv', index = None, header=True)
     print ('(validation data) Finished exporting to image_id+class_id_validation.csv')
 
     #test
-    image_id_data_test = pd.read_csv("./ImageSrc/test/annotations-human.csv")
-    test_img_cnt = 0
-
-    for i in range(len(image_id_data_test.ImageID)):
-        if (image_id_data_test.LabelName[i] in extracted_class_id) and image_id_data_test.Confidence[i]:
-            extracted_image_id_test.append([
-                image_id_data_test.ImageID[i],
-                sel_class[extracted_class_id.index(image_id_data_test.LabelName[i])][0],
-                sel_class[extracted_class_id.index(image_id_data_test.LabelName[i])][1]
-                ])
-            #print (food_list['food_name'][i])
-            test_img_cnt += 1
-
-    print (str(test_img_cnt)+' test images extracted.')
+    [extracted_image_id_test,img_cnt_test] = helper_extract_image_id('test',extracted_class)
+    print (str(img_cnt_test)+' testing images extracted.')
 
     export_df_test = pd.DataFrame({
                 'Image_id':[i[0] for i in extracted_image_id_test],
                 'Class_id':[i[1] for i in extracted_image_id_test],
-                'class_description':[i[2] for i in extracted_image_id_test]
+                'class_description':[i[2] for i in extracted_image_id_test],
+                'x_min':[i[3] for i in extracted_image_id_test],
+                'x_max':[i[4] for i in extracted_image_id_test],
+                'y_min':[i[5] for i in extracted_image_id_test],
+                'y_max':[i[6] for i in extracted_image_id_test]
                 })
-    export_csv_test = export_df_test.to_csv ('./extracted_info/image_id+class_id_test.csv', index = None, header=True)
-    print ('(test data) Finished exporting to image_id+class_id_test.csv')
+    export_csv_test = export_df_test.to_csv ('image_id+class_id_test.csv', index = None, header=True)
+    print ('(testing data) Finished exporting to image_id+class_id_test.csv')
 
 
 def helper_search(image_url_data,class_id_data):
@@ -143,112 +97,96 @@ def helper_search(image_url_data,class_id_data):
                 image_url_data.Title[i],
                 image_url_data.Thumbnail300KURL[i],
                 class_id_data.Class_id[idx_in_data],
-                class_id_data.class_description[idx_in_data]
+                class_id_data.class_description[idx_in_data],
+                class_id_data.x_min[idx_in_data],
+                class_id_data.x_max[idx_in_data],
+                class_id_data.y_min[idx_in_data],
+                class_id_data.y_max[idx_in_data]
                 ])
             img_cnt += 1
 
     return [img_cnt,extracted_image_url]
 
-def helper_export_df(extracted_image_url,train_val_test):
+def helper_export_df(extracted_image_url,test_val_test):
     export_df= pd.DataFrame({
                 'Image_id':[i[0] for i in extracted_image_url],
                 'Image_title':[i[1] for i in extracted_image_url],
                 'Image_url':[i[2] for i in extracted_image_url],
                 'Class_id':[i[3] for i in extracted_image_url],
-                'class_description':[i[4] for i in extracted_image_url]
+                'class_description':[i[4] for i in extracted_image_url],
+                'x_min':[i[5] for i in extracted_image_url],
+                'x_max':[i[6] for i in extracted_image_url],
+                'y_min':[i[7] for i in extracted_image_url],
+                'y_max':[i[8] for i in extracted_image_url]
                 })
-    export_csv_train = export_df.to_csv ('./extracted_info/image_url_extracted_'+train_val_test+'.csv', index = None, header=True)
+    export_csv = export_df.to_csv ('image_url_extracted_'+test_val_test+'.csv', index = None, header=True)
 
 def image_url():
 
-    extracted_image_url_train = []
-
-    url_col_names = ['ImageID','Subset','OriginalURL','OriginalLandingURL','License','AuthorProfileURL','Author','Title','OriginalSize','OriginalMD5','Thumbnail300KURL']
-    total_size = 9011220 - 1
-
 ############################################################
     #train
-    if not os.path.isfile('./extracted_info/image_url_extracted_train.csv'):
+    #if not os.path.isfile('./extracted_info/image_url_extracted_train.csv'):
         #read url file
-        image_url_data = pd.read_csv('./ImageSrc/train/images.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
+    # image_url_data = pd.read_csv('train-images-boxable-with-rotation.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
+    #
+    # #read class id file
+    # class_id_data = pd.read_csv('image_id+class_id_train.csv')
+    #
+    # [train_img_cnt,extracted_image_url_train] = helper_search(image_url_data,class_id_data)
+    #
+    # print (str(train_img_cnt)+' train images url extracted.')
+    #
+    # helper_export_df(extracted_image_url_train,'train')
+    # print ('(train data) Finished exporting to image_url_extracted_train.csv')
 
-        #read class id file
-        class_id_data = pd.read_csv('./extracted_info/image_id+class_id_train.csv')
-        class_id_data_format = ['Class_id','Image_id','class_description']
-
-        [train_img_cnt,extracted_image_url_train] = helper_search(image_url_data,class_id_data)
-
-        print (str(train_img_cnt)+' train images url extracted.')
-
-        helper_export_df(extracted_image_url_train,'train')
-        print ('(train data) Finished exporting to image_url_extracted_train.csv')
-
-    else:
-        print ('(train data) Already exported to image_url_extracted_train.csv')
+    # else:
+    #     print ('(train data) Already exported to image_url_extracted_train.csv')
 
 
 
 ########################################################################################
     #validaiton
-    if not os.path.isfile('./extracted_info/image_url_extracted_validation.csv'):
-        #read url file
-        image_url_data = pd.read_csv('./ImageSrc/validation/images.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
+    image_url_data = pd.read_csv('validation-images-with-rotation.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
 
-        #read class id file
-        class_id_data = pd.read_csv('./extracted_info/image_id+class_id_validation.csv')
-        class_id_data_format = ['Class_id','Image_id','class_description']
+    #read class id file
+    class_id_data = pd.read_csv('image_id+class_id_validation.csv')
 
-        [validation_img_cnt,extracted_image_url_validation] = helper_search(image_url_data,class_id_data)
+    [validation_img_cnt,extracted_image_url_validation] = helper_search(image_url_data,class_id_data)
 
-        print (str(validation_img_cnt)+' validation images url extracted.')
+    print (str(validation_img_cnt)+' validation images url extracted.')
 
-        helper_export_df(extracted_image_url_validation,'validation')
-
-        print ('(validation data) Finished exporting to image_url_extracted_validation.csv')
-
-    else:
-        print ('(validation data) Already exported to image_url_extracted_validation.csv')
+    helper_export_df(extracted_image_url_validation,'validation')
+    print ('(validation data) Finished exporting to image_url_extracted_validation.csv')
 
 
+    image_url_data = pd.read_csv('test-images-with-rotation.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
 
-########################################################################################
-    #test
-    if not os.path.isfile('./extracted_info/image_url_extracted_test.csv'):
-        #read url file
-        image_url_data = pd.read_csv('./ImageSrc/test/images.csv',usecols=['ImageID','Title','Thumbnail300KURL'])
+    #read class id file
+    class_id_data = pd.read_csv('image_id+class_id_test.csv')
 
-        #read class id file
-        class_id_data = pd.read_csv('./extracted_info/image_id+class_id_test.csv')
-        class_id_data_format = ['Class_id','Image_id','class_description']
+    [test_img_cnt,extracted_image_url_test] = helper_search(image_url_data,class_id_data)
 
-        [test_img_cnt,extracted_image_url_test] = helper_search(image_url_data,class_id_data)
+    print (str(test_img_cnt)+' test images url extracted.')
 
-        print (str(test_img_cnt)+' test images url extracted.')
-
-        helper_export_df(extracted_image_url_test,'test')
-
-        print ('(test data) Finished exporting to image_url_extracted_test.csv')
-
-    else:
-        print ('(test data) Already exported to image_url_extracted_test.csv')
-
+    helper_export_df(extracted_image_url_test,'test')
+    print ('(test data) Finished exporting to image_url_extracted_test.csv')
 
 def sort_csv_with_class():
-    image_url_data = pd.read_csv('./extracted_info/image_url_extracted_train.csv')
-    export_sorted_csv_train = image_url_data.sort_values(by=['Class_id']).to_csv ('./extracted_info/image_url_extracted_train.csv', index = None, header=True)
+    image_url_data = pd.read_csv('image_url_extracted_train.csv')
+    export_sorted_csv_train = image_url_data.sort_values(by=['Class_id']).to_csv ('image_url_extracted_train.csv', index = None, header=True)
 
-    image_url_data = pd.read_csv('./extracted_info/image_url_extracted_validation.csv')
-    export_sorted_csv_validation = image_url_data.sort_values(by=['Class_id']).to_csv ('./extracted_info/image_url_extracted_validation.csv', index = None, header=True)
+    image_url_data = pd.read_csv('image_url_extracted_validation.csv')
+    export_sorted_csv_validation = image_url_data.sort_values(by=['Class_id']).to_csv ('image_url_extracted_validation.csv', index = None, header=True)
 
-    image_url_data = pd.read_csv('./extracted_info/image_url_extracted_test.csv')
-    export_sorted_csv_test = image_url_data.sort_values(by=['Class_id']).to_csv ('./extracted_info/image_url_extracted_test.csv', index = None, header=True)
+    image_url_data = pd.read_csv('image_url_extracted_test.csv')
+    export_sorted_csv_test = image_url_data.sort_values(by=['Class_id']).to_csv ('image_url_extracted_test.csv', index = None, header=True)
 
 def download(train_validation_test):
-    image_url_data = pd.read_csv('./extracted_info/image_url_extracted_'+train_validation_test+'.csv')
+    image_url_data = pd.read_csv('./new_resources/image_url_extracted_'+train_validation_test+'.csv')
     for i in range(len(image_url_data.Image_url)):
-        name = "./data/"+train_validation_test+"/"+image_url_data.class_description[i]+"/"+str(i).zfill(6)
+        name = "./images/"+train_validation_test+"/"+image_url_data.class_description[i]+"/"+image_url_data.Image_id[i]
         url = image_url_data.Image_url[i]
-        print ('Image '+str(i).zfill(6))
+        print ('Image '+str(i).zfill(6) + '///' + image_url_data.Image_id[i])
 
         try:
             print ('Downloading from '+url)
@@ -270,53 +208,64 @@ def resize_all():
 
                 old_path = './data/'+i+'/'+j+'/'+k
                 print ('old file path: '+old_path)
-                new_path = './resized_data/'+i+'/'+j+'/'+str(idx).zfill(4)+'.jpg'
+                new_path = './images/'+i+'/'+j+'/'+str(idx).zfill(4)+'.jpg'
                 idx += 1
                 resize_im(old_path,new_path)
     print ('Finished resizing all images ...')
 
+def make_folders():
+    os.mkdir('./images/')
+    print ('Made folder ./images/')
+    os.mkdir('./images/train/')
+
+    os.mkdir('./images/validation/')
+
+    os.mkdir('./images/test/')
+    class_info = pd.read_csv('class-description.csv')
+    for i in range(len(class_info.Class_ID)):
+        os.mkdir('./images/train/'+class_info.Class_Description[i])
+    print ('Made folder ./images/train/')
+    for i in range(len(class_info.Class_ID)):
+        os.mkdir('./images/validation/'+class_info.Class_Description[i])
+    print ('Made folder ./images/validation/')
+    for i in range(len(class_info.Class_ID)):
+        os.mkdir('./images/test/'+class_info.Class_Description[i])
+    print ('Made folder ./images/test/')
+
 ##############################################################
 #main
 
+#image_id_csv()
+#image_url()
+#sort_csv_with_class()
+
+
+
 #check if the first and second step is finished
-if os.path.isfile('./extracted_info/image_id+class_id_test.csv') and os.path.isfile('./extracted_info/image_id+class_id_train.csv') and os.path.isfile('./extracted_info/image_id+class_id_validation.csv'):
-    print ('First and second step finished ... ')
-    [food_cnt,extracted_class_id,sel_class] = get_class_id()
-    print ('Extracting URL ...')
-    image_url()
-    print ('FINISHED EXTRACTING URL  ... ')
-    sort_csv_with_class()
-    print ('SORTED')
-else:
-    print ('Running first and second step ...')
-    image_id_csv()
-    print ('First and second step finished ... ')
-    print ('Extracting URL ...')
-    image_url()
-    print ('FINISHED EXTRACTING URL  ... ')
-    sort_csv_with_class()
-    print ('SORTED')
+# if os.path.isfile('./extracted_info/image_id+class_id_test.csv') and os.path.isfile('./extracted_info/image_id+class_id_train.csv') and os.path.isfile('./extracted_info/image_id+class_id_validation.csv'):
+#     print ('First and second step finished ... ')
+#     [food_cnt,extracted_class_id,sel_class] = get_class_id()
+#     print ('Extracting URL ...')
+#     image_url()
+#     print ('FINISHED EXTRACTING URL  ... ')
+#     sort_csv_with_class()
+#     print ('SORTED')
+# else:
+#     print ('Running first and second step ...')
+#     image_id_csv()
+#     print ('First and second step finished ... ')
+#     print ('Extracting URL ...')
+#     image_url()
+#     print ('FINISHED EXTRACTING URL  ... ')
+#     sort_csv_with_class()
+#     print ('SORTED')
+#
+# if not os.path.exists('./resized_data/'):
 
-if not os.path.exists('./resized_data/'):
-    os.mkdir('./resized_data/')
-    print ('Made folder ./resized_data/')
-    os.mkdir('./resized_data/train/')
+# print ('Finished making folders')
+# resize_all()
 
-    os.mkdir('./resized_data/validation/')
 
-    os.mkdir('./resized_data/test/')
-
-    for i in sel_class:
-        os.mkdir('./resized_data/train/'+i[1])
-    print ('Made folder ./resized_data/train/')
-    for i in sel_class:
-        os.mkdir('./resized_data/validation/'+i[1])
-    print ('Made folder ./resized_data/validation/')
-    for i in sel_class:
-        os.mkdir('./resized_data/test/'+i[1])
-    print ('Made folder ./resized_data/test/')
-print ('Finished making folders')
-resize_all()
 #download('validation')
 #download('test')
 #download('train')
