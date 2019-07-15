@@ -12,7 +12,7 @@ box info: contains (resized box info) csv files of [image id, image url, box inf
 
 images: contains raw images
 
-extracted_info: collected in the first week (abandoned because there is no box)
+old_extracted_info: collected in the first week (abandoned because there is no box)
 
 google_crawler: collected in the second week (abandoned because there is no box)
 
