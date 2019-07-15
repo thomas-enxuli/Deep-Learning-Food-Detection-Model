@@ -7,7 +7,9 @@ import pandas as pd
 import os.path
 import os
 import urllib.request
-#from resize import *
+from resize import *
+
+new_size = 640
 
 
 def helper_extract_image_id(train_validation_test,extracted_class):
@@ -198,39 +200,81 @@ def download(train_validation_test):
     print ('Finished downloading '+train_validation_test+' images ...')
 
 def resize_all():
-    grandmother = os.listdir('./data') # train, test, val
+    grandmother = os.listdir('./images') # train, test, val
     for i in grandmother:
-        parent = os.listdir('./data/'+i) # bacon, ...
+        parent = os.listdir('./images/'+i) # bacon, ...
         for j in parent:
-            child = os.listdir('./data/'+i+'/'+j) # images
+            child = os.listdir('./images/'+i+'/'+j) # images
             idx = 0
             for k in child:
-
-                old_path = './data/'+i+'/'+j+'/'+k
+                old_path = './images/'+i+'/'+j+'/'+k
                 print ('old file path: '+old_path)
-                new_path = './images/'+i+'/'+j+'/'+str(idx).zfill(4)+'.jpg'
+                new_path = './resized_images/'+i+'/'+j+'/'+k+'.jpg'
                 idx += 1
                 resize_im(old_path,new_path)
     print ('Finished resizing all images ...')
 
+def change_box_resize(train_validation_test):
+
+    old_data = pd.read_csv('./new_resources/image_url_extracted_'+train_validation_test+'.csv')
+    parent = os.listdir('./images/'+train_validation_test)
+    for i in parent:
+        child = os.listdir('./images/'+train_validation_test+'/'+i)
+        new_data = []
+        for j in child:
+            im = cv2.imread('./images/'+train_validation_test+'/'+i+'/'+j)
+            y = im.shape[0]
+            x = im.shape[1]
+            idx_in_data = old_data.Image_id[old_data.Image_id==j].index.tolist()[0]
+            new_x_min = ((new_size - x)/2.0 + (old_data.x_min[idx_in_data]*x))/new_size
+            new_x_max = ((new_size - x)/2.0 + (old_data.x_max[idx_in_data]*x))/new_size
+            new_y_min = ((new_size - y)/2.0 + (old_data.y_min[idx_in_data]*y))/new_size
+            new_y_max = ((new_size - y)/2.0 + (old_data.y_max[idx_in_data]*y))/new_size
+
+            new_data.append([
+                old_data.Image_id[idx_in_data],
+                old_data.Image_title[idx_in_data],
+                old_data.Image_url[idx_in_data],
+                old_data.Class_id[idx_in_data],
+                old_data.class_description[idx_in_data],
+                new_x_min,
+                new_x_max,
+                new_y_min,
+                new_y_max
+                ])
+        export_df= pd.DataFrame({
+                    'Image_id':[k[0] for k in new_data],
+                    'Image_title':[k[1] for k in new_data],
+                    'Image_url':[k[2] for k in new_data],
+                    'Class_id':[k[3] for k in new_data],
+                    'class_description':[k[4] for k in new_data],
+                    'x_min':[k[5] for k in new_data],
+                    'x_max':[k[6] for k in new_data],
+                    'y_min':[k[7] for k in new_data],
+                    'y_max':[k[8] for k in new_data]
+                    })
+        #export_csv = export_df.to_csv ('./images/'+train_validation_test+'/'+i+'/'+i+'_data.csv', index = None, header=True)
+        export_csv = export_df.to_csv ('./resized_images/'+train_validation_test+'/'+i+'/'+i+'_data.csv', index = None, header=True)
+        print ('Finished '+i)
+
 def make_folders():
-    os.mkdir('./images/')
-    print ('Made folder ./images/')
-    os.mkdir('./images/train/')
+    os.mkdir('./resized_images/')
+    print ('Made folder ./resized_images/')
+    os.mkdir('./resized_images/train/')
 
-    os.mkdir('./images/validation/')
+    os.mkdir('./resized_images/validation/')
 
-    os.mkdir('./images/test/')
+    os.mkdir('./resized_images/test/')
     class_info = pd.read_csv('class-description.csv')
     for i in range(len(class_info.Class_ID)):
-        os.mkdir('./images/train/'+class_info.Class_Description[i])
-    print ('Made folder ./images/train/')
+        os.mkdir('./resized_images/train/'+class_info.Class_Description[i])
+    print ('Made folder ./resized_images/train/')
     for i in range(len(class_info.Class_ID)):
-        os.mkdir('./images/validation/'+class_info.Class_Description[i])
-    print ('Made folder ./images/validation/')
+        os.mkdir('./resized_images/validation/'+class_info.Class_Description[i])
+    print ('Made folder ./resized_images/validation/')
     for i in range(len(class_info.Class_ID)):
-        os.mkdir('./images/test/'+class_info.Class_Description[i])
-    print ('Made folder ./images/test/')
+        os.mkdir('./resized_images/test/'+class_info.Class_Description[i])
+    print ('Made folder ./resized_images/test/')
 
 ##############################################################
 #main

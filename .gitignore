@@ -3,7 +3,7 @@ ImageSrc/
 __pycache__
 extracted_info
 data
-resized_data
+resized_images
 downloads
 logs
 old_image_collected
