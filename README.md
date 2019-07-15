@@ -2,6 +2,22 @@
 
 Food Recognition
 
+**Folder Explanation**
+
+new_resources: collected in the third week (csv files) (currently using this dataset)
+
+resized_images: contains all images with box information (640*640) (currently using this dataset)
+
+box info: contains (resized box info) csv files of [image id, image url, box information...]
+
+images: contains raw images
+
+extracted_info: collected in the first week (abandoned because there is no box)
+
+google_crawler: collected in the second week (abandoned because there is no box)
+
+old_image_collected: downloaded images with extracted_info (abandoned)
+
 **Image Collection**
 
 plan: extract the food part of google open Images
