@@ -11,3 +11,5 @@ chromedriver
 google_crawler
 images
 old_extracted_info
+balanced_resized_images
+cropped_images

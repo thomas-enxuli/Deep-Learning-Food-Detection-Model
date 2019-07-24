@@ -258,23 +258,23 @@ def change_box_resize(train_validation_test):
         print ('Finished '+i)
 
 def make_folders():
-    os.mkdir('./resized_images/')
-    print ('Made folder ./resized_images/')
-    os.mkdir('./resized_images/train/')
+    os.mkdir('./cropped_images/')
+    print ('Made folder ./cropped_images/')
+    os.mkdir('./cropped_images/train/')
 
-    os.mkdir('./resized_images/validation/')
+    os.mkdir('./cropped_images/validation/')
 
-    os.mkdir('./resized_images/test/')
+    os.mkdir('./cropped_images/test/')
     class_info = pd.read_csv('class-description.csv')
     for i in range(len(class_info.Class_ID)):
-        os.mkdir('./resized_images/train/'+class_info.Class_Description[i])
-    print ('Made folder ./resized_images/train/')
+        os.mkdir('./cropped_images/train/'+class_info.Class_Description[i])
+    print ('Made folder ./cropped_images/train/')
     for i in range(len(class_info.Class_ID)):
-        os.mkdir('./resized_images/validation/'+class_info.Class_Description[i])
-    print ('Made folder ./resized_images/validation/')
+        os.mkdir('./cropped_images/validation/'+class_info.Class_Description[i])
+    print ('Made folder ./cropped_images/validation/')
     for i in range(len(class_info.Class_ID)):
-        os.mkdir('./resized_images/test/'+class_info.Class_Description[i])
-    print ('Made folder ./resized_images/test/')
+        os.mkdir('./cropped_images/test/'+class_info.Class_Description[i])
+    print ('Made folder ./cropped_images/test/')
 
 ##############################################################
 #main
