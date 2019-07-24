@@ -45,6 +45,14 @@ extracted: [image_id, image_title, image_url]
 
 **Step 4**: download all images from the extracted url into folders with corresponding labels (use urllib command)
 
-**Step 5**: resize all images to 640 by 640 pixels using black padding in order to keep the original ratio (use openCV)
+**Step 5**: cropped all images according to the boxes
 
-**Next Step**: check all images
+**Step 6**: resize all images to 300 by 300 pixels (use openCV)
+
+**Step 7**: data augmentation to balance images (about 1000 images per class)
+
+**Step 8**: train baseline with pretrained Alexnet
+
+**Step 9**: use resnet-50 as object classification model and training in progress
+
+**Next Step**: hyperparameter tuning
