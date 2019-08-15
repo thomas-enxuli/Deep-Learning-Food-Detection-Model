@@ -1,15 +1,3 @@
 .DS_Store
-ImageSrc/
 __pycache__
-extracted_info
-data
-resized_images
-downloads
-logs
-old_image_collected
-chromedriver
-google_crawler
-images
-old_extracted_info
-balanced_resized_images
-cropped_images
+final_model.pth
